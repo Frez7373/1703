@@ -1,0 +1,60 @@
+-- Настройки
+local monitorSide = "top" -- Сториона, где висит монитор
+local storageSide = "back" -- Сторона, где стоит энергохранилище
+
+-- Инициализация периферии
+local monitor = peripheral.wrap(monitorSide)
+local storage = peripheral.wrap(storageSide)
+
+if not monitor or not storage then
+    print("Ошибка: Проверьте подключение монитора и хранилища!")
+    return
+end
+
+-- Функция отрисовки прогресс-бара
+local function drawProgressBar(x, y, width, height, percent, color)
+    monitor.setBackgroundColor(colors.gray)
+    monitor.setCursorPos(x, y)
+    monitor.write(string.rep(" ", width)) -- Фон бара
+    
+    local fillWidth = math.floor((width * percent) / 100)
+    if fillWidth > 0 then
+        monitor.setBackgroundColor(color)
+        monitor.setCursorPos(x, y)
+        monitor.write(string.rep(" ", fillWidth))
+    end
+    monitor.setBackgroundColor(colors.black)
+end
+
+-- Главный цикл
+while true do
+    local energy = storage.getEnergy() or 0
+    local maxEnergy = storage.getMaxEnergy() or 1
+    local percentage = math.floor((energy / maxEnergy) * 100)
+    
+    monitor.clear()
+    monitor.setTextScale(1)
+    
+    -- Заголовок
+    monitor.setCursorPos(2, 2)
+    monitor.setTextColor(colors.yellow)
+    monitor.write("ENERGY MONITOR")
+    
+    -- Вывод цифр
+    monitor.setCursorPos(2, 4)
+    monitor.setTextColor(colors.white)
+    monitor.write("Status: " .. energy .. " / " .. maxEnergy .. " FE")
+    
+    -- Отрисовка бара (зеленый если > 50%, желтый если > 20%, красный если мало)
+    local barColor = colors.green
+    if percentage < 20 then barColor = colors.red 
+    elseif percentage < 50 then barColor = colors.orange end
+    
+    drawProgressBar(2, 6, 26, 1, percentage, barColor)
+    
+    monitor.setCursorPos(2, 8)
+    monitor.setTextColor(colors.cyan)
+    monitor.write("Charge: " .. percentage .. "%")
+    
+    sleep(1) -- Обновление раз в секунду
+end
