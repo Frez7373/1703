@@ -1,0 +1,41 @@
+-- Configuration
+local correctPassword = "OpenSesame"
+local doorSide = "back" -- The side where your door/redstone is
+local openDuration = 3  -- How long the door stays open (seconds)
+
+-- Clear the screen and reset cursor
+local function resetScreen()
+    term.clear()
+    term.setCursorPos(1, 1)
+    print("=== SECURITY TERMINAL ===")
+    print("-------------------------")
+end
+
+local function main()
+    while true do
+        resetScreen()
+        write("Enter Password: ")
+        
+        -- read("*") masks the input with asterisks
+        local input = read("*")
+
+        if input == correctPassword then
+            term.setTextColor(colors.green)
+            print("\nAccess Granted!")
+            term.setTextColor(colors.white)
+            
+            -- Trigger redstone
+            redstone.setOutput(doorSide, true)
+            sleep(openDuration)
+            redstone.setOutput(doorSide, false)
+        else
+            term.setTextColor(colors.red)
+            print("\nAccess Denied. Try again.")
+            term.setTextColor(colors.white)
+            sleep(2) -- Pause so the user can read the error
+        end
+    end
+end
+
+-- Run the program
+main()
